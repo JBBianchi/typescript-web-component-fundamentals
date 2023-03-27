@@ -1,0 +1,58 @@
+{
+  "name": "typescript-web-component-fundamentals",
+  "version": "1.0.0",
+  "description": "Holds the minimal TypeScript code for a web component",
+  "main": "index.js",
+  "scripts": {
+    "rimraf": "npx rimraf",
+    "shx": "npx shx",
+    "tsc": "npx tsc",
+    "ts-node": "npx ts-node",
+    "eslint": "npx eslint",
+    "prettier": "npx prettier",
+    "lint-staged": "npx lint-staged",
+    "clean": "npx rimraf dist && rimraf out-tsc",
+    "format": "npx prettier --write \"**/*.ts\"",
+    "lint": "npx eslint . --ext .ts && npx prettier --check \"**/*.ts\"",
+    "pretest": "npx rimraf out-tsc",
+    "test": "npx tsc --project ./tests/tsconfig.json && npx jest",
+    "prebuild": "npx rimraf dist",
+    "build": "npx rollup -c rollup.config.ts && npx shx mv ./dist/src/lib ./dist/lib &&  npx shx mv ./dist/src/*d.ts.map ./dist/src/*d.ts ./dist && npx rimraf ./dist/src",
+    "postbuild": "npx shx cp ./package.json ./README.md ./LICENSE ./dist/",
+    "verify-publish-directory": "node -e 'if (!process.cwd().endsWith(\"dist\")) { console.error(\"Packaging/Publishing should be done from ./dist/\"); process.exitCode = 1; } process.exit();'",
+    "prepack": "npm run verify-publish-directory",
+    "prepublishOnly": "npm run verify-publish-directory",
+    "prepublish": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JBBianchi/typescript-web-component-fundamentals.git"
+  },
+  "author": "Jean-Baptiste BIANCHI (https://neuroglia.io)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/JBBianchi/typescript-web-component-fundamentals/issues"
+  },
+  "homepage": "https://github.com/JBBianchi/typescript-web-component-fundamentals#readme",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.0",
+    "prettier": "^2.8.7",
+    "rimraf": "^4.4.1",
+    "rollup": "^3.20.2",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.34.1",
+    "shx": "^0.3.4",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.0"
+  }
+}
