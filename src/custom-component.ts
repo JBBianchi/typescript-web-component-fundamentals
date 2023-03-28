@@ -33,7 +33,7 @@ type EventHandler<T = any> = (evt: CustomEvent<T>) => void;
 const noop: EventHandler = (evt: CustomEvent): void => {};
 /** */
 
-import { BehaviorSubject, Subject, takeUntil, tap } from "rxjs";
+import { Emit } from "./decorators/emit";
 
 const customComponentTag = "custom-component";
 
@@ -47,10 +47,7 @@ const propertiesEventTypeMapping: PropertiesEventTypeMapping<CustomComponent> =
   {
     onChange: "propertyChanged",
   };
-export default class CustomComponent
-  extends HTMLElement
-  implements IWebComponent
-{
+export class CustomComponent extends HTMLElement implements IWebComponent {
   static get tag(): string {
     return customComponentTag;
   }
@@ -61,12 +58,12 @@ export default class CustomComponent
     return Object.keys(observedAttributesMapping);
   }
   private root: ShadowRoot;
-  private disconnectNotifier = new Subject<null>();
-  ownProp: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  @Emit()
+  ownProp: string = "";
   private _otherProp: string = "";
+  //@Emit()
   set otherProp(value: string) {
     this._otherProp = value;
-    this.emitChange("otherProp", value);
   }
   get otherProp(): string {
     return this._otherProp;
@@ -76,12 +73,6 @@ export default class CustomComponent
   constructor() {
     super();
     this.root = this.attachShadow({ mode: "closed" }); // keeps track of the shadowRoot even if its closed
-    this.ownProp
-      .pipe(
-        tap((value) => this.emitChange("ownProp", value)),
-        takeUntil(this.disconnectNotifier)
-      )
-      .subscribe();
   }
   adoptedCallback(): void {}
   connectedCallback(): void {
@@ -90,7 +81,6 @@ export default class CustomComponent
     }
   }
   disconnectedCallback(): void {
-    this.ownProp.complete();
     Object.entries(propertiesEventTypeMapping).forEach(
       ([property, eventType]) => {
         const listener = this[
@@ -101,8 +91,6 @@ export default class CustomComponent
         }
       }
     );
-    this.disconnectNotifier.next(null);
-    this.disconnectNotifier.complete();
   }
   attributeChangedCallback(
     attribute: string,
@@ -115,14 +103,7 @@ export default class CustomComponent
       console.warn(`Unable to map attribute '${attribute}' to a property.`);
       return;
     }
-    if (this[property] instanceof BehaviorSubject<any>) {
-      const subject = this[property] as BehaviorSubject<any>;
-      if (subject.value === currentValue) {
-        return;
-      }
-      (this[property] as BehaviorSubject<any>).next(currentValue);
-      return;
-    } else if (typeof this[property] === functionType) {
+    if (typeof this[property] === functionType) {
       // event handler
       const eventType = propertiesEventTypeMapping[property];
       if (!eventType) {
@@ -152,18 +133,6 @@ export default class CustomComponent
     if (this[property] !== currentValue) {
       this[property] = currentValue;
     }
-  }
-  private emitChange(property: string, value: any) {
-    this.dispatchEvent(
-      new CustomEvent<ChangeEventArgs>("propertyChanged", {
-        bubbles: true,
-        cancelable: true,
-        detail: {
-          property,
-          value,
-        },
-      })
-    );
   }
 }
 

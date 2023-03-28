@@ -6,7 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 
 export default {
-  input: 'src/custom-component.ts',
+  input: 'src/index.ts',
   output: {
     dir: 'dist',
     name: 'CustomComponent',

@@ -3,8 +3,9 @@
 
 <body>
     <!--<custom-component on-change="(evt) => console.log(evt.detail)" matching-attribute="test-attr"></custom-component>-->
-    <script src="../dist/custom-component.js"></script>
+    <script src="../dist/index.js"></script>
     <script defer>
+        //console.log(CustomComponent);
         //CustomComponent.define();
         const customEl = document.createElement(CustomComponent.tag);
         document.body.appendChild(customEl);
