@@ -11,11 +11,11 @@
         document.body.appendChild(customEl);
         customEl.addEventListener("propertyChanged", (evt) => console.log(evt.detail));
         customEl.setAttribute('matching-attribute', 'test set attr');
-        customEl['matching-attribute'] = "test attr";
         customEl.ownProp = "test prop";
         customEl.setAttribute('matching-attribute', 'test set attr2');
         customEl.otherProp = "test otherProp";
         customEl.setAttribute('other-attr', 'test set other attr');
+        console.log(customEl.ownProp);
     </script>
 </body>
 

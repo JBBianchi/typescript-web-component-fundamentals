@@ -60,8 +60,9 @@ export class CustomComponent extends HTMLElement implements IWebComponent {
   private root: ShadowRoot;
   @Emit()
   ownProp: string = "";
+
   private _otherProp: string = "";
-  //@Emit()
+  @Emit()
   set otherProp(value: string) {
     this._otherProp = value;
   }

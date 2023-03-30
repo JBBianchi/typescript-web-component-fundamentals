@@ -1,41 +1,50 @@
+const dispatchPropertyChangedEvent = (
+  target: any,
+  propertyName: string,
+  value: any
+): void => {
+  target.dispatchEvent(
+    new CustomEvent("propertyChanged", {
+      detail: {
+        propertyName,
+        value,
+      },
+      bubbles: true,
+      cancelable: true,
+    })
+  );
+};
+
 export function Emit() {
-  return function (
+  return (
     target: any,
     propertyName: string,
     descriptor: PropertyDescriptor | null = null
-  ) {
-    // console.log("target", target);
-    // console.log("propertyName", propertyName);
-    // console.log("descriptor", descriptor);
-    const constructor = target.constructor;
-    let innerValue: any = target[propertyName];
-    function get(): any {
-      return !!descriptor ? descriptor.value : innerValue;
+  ) => {
+    if (!descriptor) {
+      const privatePropertyName = `__${String(propertyName)}`;
+      descriptor = {
+        get: function () {
+          return (this as any)[privatePropertyName];
+        },
+        set: function (value: any) {
+          (this as any)[privatePropertyName] = value;
+          dispatchPropertyChangedEvent(this, propertyName, value);
+        },
+      };
+      Object.defineProperty(target, propertyName, descriptor);
+      return;
     }
-    function set(value: any) {
-      if (!descriptor) {
-        innerValue = value;
-      } else if (!descriptor!.set) {
-        return;
-      } else {
-        descriptor!.set!(value);
-        innerValue = descriptor!.value;
-      }
-      target.dispatchEvent(
-        new CustomEvent("propertyChanged", {
-          detail: {
-            propertyName,
-            innerValue,
-          },
-          bubbles: true,
-          cancelable: true,
-        })
-      );
+    if (descriptor.set) {
+      const set = descriptor.set;
+      descriptor.set = function (value: any) {
+        set.call(this, value);
+        dispatchPropertyChangedEvent(
+          this,
+          propertyName,
+          (this as any)[propertyName]
+        );
+      };
     }
-    Object.defineProperty(constructor, propertyName, {
-      get,
-      set,
-    });
-    return target;
   };
 }
